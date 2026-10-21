@@ -1,33 +1,48 @@
 import { useState, useEffect } from "react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
-const QUESTIONS = [
-  { d:0, r:false, text:"自分の得意なことと苦手なことを、具体的に説明できる" },
-  { d:0, r:false, text:"仕事で疲れてきたとき、身体の変化（頭痛・肩こり・眠気など）として自分でわかることがある" },
-  { d:0, r:false, text:"自分が「調子が悪い状態」になっていることを、その場で自覚できる" },
-  { d:0, r:false, text:"過去のミスや困りごとから、自分の行動パターンを振り返ることができる" },
-  { d:0, r:false, text:"自分の困りごとが「性格」や「努力不足」ではなく、脳の特性からきているかもしれないと考えることができる" },
-  { d:1, r:false, text:"複数の仕事がある場合、何から手をつけるか順番を決めることができる" },
-  { d:1, r:true,  text:"感情が動いたとき（怒り・不安・悲しみなど）、すぐに行動や言葉に出てしまうことがある" },
-  { d:1, r:false, text:"集中しにくいと感じたとき、環境を変えるなど自分で対処することができる" },
-  { d:1, r:true,  text:"締め切りや予定の管理が、自分ひとりでは難しいと感じることがある" },
-  { d:1, r:true,  text:"電話・入力・声かけなど複数のことが同時に起きると、頭の処理が追いつかなくなることがある" },
-  { d:2, r:false, text:"仕事でわからないことがあったとき、上司や同僚に質問することができる" },
-  { d:2, r:false, text:"困りごとが大きくなる前に、誰かに相談することができる" },
-  { d:2, r:false, text:"自分が必要としている配慮や働き方の工夫を、実際に職場で伝えることができる" },
-  { d:2, r:true,  text:"仕事で困っていることがあっても、「大げさかな」「迷惑かな」と思って職場に言い出せないことがある" },
-  { d:2, r:false, text:"仕事上の失敗やミスを、一人で抱え込まずに処理することができる" },
-  { d:3, r:false, text:"仕事の疲れが蓄積しているとき、休む・ペースを落とすなどの行動をとることができる" },
-  { d:3, r:true,  text:"職場で「普通にできている人」のように振る舞うことに、内側でエネルギーを消耗していることがある" },
-  { d:3, r:false, text:"自分にとっての「回復方法」（睡眠・趣味・一人の時間など）を選ぶことができる" },
-  { d:3, r:true,  text:"仕事の後、頭の中でその日の出来事をくり返し考え続けることがある" },
-  { d:3, r:true,  text:"他の人が短時間でこなせることに、自分は倍以上の時間やエネルギーがかかることがある" },
-  { d:4, r:false, text:"今の職場の環境が、自分に合っているかどうかを判断することができる" },
-  { d:4, r:false, text:"自分がどんな職場環境だと力を発揮しやすいか、具体的に説明できる" },
-  { d:4, r:false, text:"仕事のやり方や環境について、改善してほしいことを職場に伝えることができる" },
-  { d:4, r:false, text:"今の仕事や職場環境でうまくいかないとき、何が原因かを言葉にできる" },
-  { d:4, r:false, text:"転職や配置換えを考えるとき、「自分に何が必要か」をもとに判断することができる" },
+// Part A: 自己調整資源（20項目）— スケール：まったくできない〜よくできる
+const QUESTIONS_A = [
+  { d:0, text:"自分の得意なことと苦手なことを、具体的に説明できる" },
+  { d:0, text:"仕事で疲れてきたとき、身体の変化（頭痛・肩こり・眠気など）として自分でわかることがある" },
+  { d:0, text:"自分が「調子が悪い状態」になっていることを、その場で自覚できる" },
+  { d:0, text:"過去のミスや困りごとから、自分の行動パターンを振り返ることができる" },
+  { d:0, text:"自分の困りごとが「性格」や「努力不足」ではなく、脳の特性からきているかもしれないと考えることができる" },
+  { d:1, text:"複数の仕事がある場合、何から手をつけるか順番を決めることができる" },
+  { d:1, text:"集中しにくいと感じたとき、環境を変えるなど自分で対処することができる" },
+  { d:1, text:"締め切りや予定の管理を、自分でできる" },
+  { d:1, text:"電話・入力・声かけなど複数のことが同時に起きても、頭の処理が追いつくことができる" },
+  { d:1, text:"感情が動いたとき（怒り・不安・悲しみなど）、すぐに行動や言葉に出さずに落ち着くことができる" },
+  { d:2, text:"仕事でわからないことがあったとき、上司や同僚に質問することができる" },
+  { d:2, text:"困りごとが大きくなる前に、誰かに相談することができる" },
+  { d:2, text:"自分が必要としている配慮や働き方の工夫を、職場の人に伝えることができる" },
+  { d:2, text:"仕事で困っていることがあっても、職場に言い出すことができる" },
+  { d:2, text:"仕事上の失敗やミスを、一人で抱え込まずに処理することができる" },
+  { d:3, text:"仕事の疲れが蓄積しているとき、休む・ペースを落とすなどの行動をとることができる" },
+  { d:3, text:"職場で無理に「普通にできている人」のように振る舞わずにいることができる" },
+  { d:3, text:"疲れたとき、自分に合った回復方法（睡眠・趣味・一人の時間など）を選ぶことができる" },
+  { d:3, text:"仕事の後、その日の出来事を引きずらずに切り替えることができる" },
+  { d:4, text:"今の職場の環境が、自分に合っているかどうかを判断することができる" },
+  { d:4, text:"自分がどんな職場環境だと力を発揮しやすいか、具体的に説明できる" },
+  { d:4, text:"仕事のやり方や環境について、改善してほしいことを職場に伝えることができる" },
+  { d:4, text:"今の仕事や職場環境でうまくいかないとき、何が原因かを言葉にできる" },
+  { d:4, text:"転職や配置換えを考えるとき、「自分に何が必要か」をもとに判断することができる" },
 ];
+
+// Part B: 困難・消耗の自覚（7項目）— スケール：ほとんどない〜よくある（過去1ヶ月）
+const QUESTIONS_B = [
+  { text:"感情が動いたとき（怒り・不安・悲しみなど）、すぐに行動や言葉に出てしまうことがある" },
+  { text:"電話・入力・声かけなど複数のことが同時に起きると、頭の処理が追いつかなくなることがある" },
+  { text:"仕事で困っていることがあっても、「大げさかな」「迷惑かな」と思って職場に言い出せないことがある" },
+  { text:"職場で「普通にできている人」のように振る舞うことに、内側でエネルギーを消耗していることがある" },
+  { text:"仕事の後、頭の中でその日の出来事をくり返し考え続けることがある" },
+  { text:"他の人が短時間でこなせることに、自分は倍以上の時間やエネルギーがかかることがある" },
+  { text:"仕事が終わると、何もできないほど消耗していることがある" },
+];
+
+const SCALE_A = ["まったくできない","あまりできない","だいたいできる","よくできる"];
+const SCALE_B = ["ほとんどない","あまりない","ときどきある","よくある"];
+const TOTAL_Q = QUESTIONS_A.length + QUESTIONS_B.length; // 24+7=31
 
 const DOMAINS = [
   { id:0, name:"自己認識", short:"自己認識", color:"#7F77DD", bg:"#EEEDFE", text:"#3C3489" },
@@ -37,8 +52,7 @@ const DOMAINS = [
   { id:4, name:"環境適合", short:"環境適合", color:"#378ADD", bg:"#E6F1FB", text:"#0C447C" },
 ];
 
-const SCALE = ["全然ない","たまにある","よくある","いつもそう"];
-const STORAGE_KEY = "metacog_v3_history";
+const STORAGE_KEY = "metacog_v4_history";
 const JOURNAL_KEY  = "metacog_v3_journal";
 
 const CATEGORIES = [
@@ -54,21 +68,27 @@ const MOOD_LABELS = ["かなりしんどい","しんどい","ふつう","まあ�
 const MOOD_ICONS  = ["😞","😟","😐","🙂","😊"];
 const MOOD_COLORS = ["#D85A30","#BA7517","#9c9a92","#1D9E75","#7F77DD"];
 
-function calcScores(ans) {
+function calcScores(ansA, ansB) {
+  // Part A: 5領域スコア（各4問、1〜4点）
   const s=[0,0,0,0,0],c=[0,0,0,0,0];
-  QUESTIONS.forEach((q,i)=>{ if(ans[i]==null)return; let v=ans[i]+1; if(q.r)v=5-v; s[q.d]+=v;c[q.d]++; });
-  return s.map((v,i)=>c[i]?Math.round(v/c[i]*10)/10:0);
+  QUESTIONS_A.forEach((q,i)=>{ if(ansA[i]==null)return; s[q.d]+=(ansA[i]+1);c[q.d]++; });
+  const scA=s.map((v,i)=>c[i]?Math.round(v/c[i]*10)/10:0);
+  // Part B: 合計スコア（1〜4点、高いほど困難・消耗が大きい）
+  let bSum=0,bCount=0;
+  ansB.forEach(v=>{ if(v!=null){bSum+=(v+1);bCount++;} });
+  const scB=bCount?Math.round(bSum/bCount*10)/10:0;
+  return {a:scA, b:scB};
 }
 
-function buildShare(sc) {
+function buildShare(scA) {
   const items=[];
-  const top=sc.indexOf(Math.max(...sc));
+  const top=scA.indexOf(Math.max(...scA));
   const ns=["自己理解・特性の説明","自己調整・段取り","支援を求める力","体調・ストレス管理","環境適合の判断"];
   items.push({id:"s0",label:"得意なこと",text:`${ns[top]}が比較的得意です。この強みを活かせる役割や仕事スタイルだと力を発揮しやすいです。`});
-  if(sc[1]<2.5)items.push({id:"s1",label:"配慮依頼：優先順位の整理",text:"複数タスクが重なるときは、優先順位を一緒に確認する時間を設けてもらえると助かります。"});
-  if(sc[2]<2.5)items.push({id:"s2",label:"配慮依頼：相談しやすい環境",text:"困りごとを自分から報告するのが苦手な傾向があります。定期的な1on1の機会があると問題が大きくなる前に相談できます。"});
-  if(sc[3]<2.5)items.push({id:"s3",label:"配慮依頼：疲労への配慮",text:"表面上は問題なく見えていても、内側で消耗していることがあります。定期的な状態確認の機会があると助かります。"});
-  if(sc[4]<2.5)items.push({id:"s4",label:"配慮依頼：作業環境",text:"靜かな環境や集中できる個人スペースがあると作業効率が上がります。"});
+  if(scA[1]<2.5)items.push({id:"s1",label:"配慮依頼：優先順位の整理",text:"複数タスクが重なるときは、優先順位を一緒に確認する時間を設けてもらえると助かります。"});
+  if(scA[2]<2.5)items.push({id:"s2",label:"配慮依頼：相談しやすい環境",text:"困りごとを自分から報告するのが苦手な傾向があります。定期的な1on1の機会があると問題が大きくなる前に相談できます。"});
+  if(scA[3]<2.5)items.push({id:"s3",label:"配慮依頼：疲労への配慮",text:"表面上は問題なく見えていても、内側で消耗していることがあります。定期的な状態確認の機会があると助かります。"});
+  if(scA[4]<2.5)items.push({id:"s4",label:"配慮依頼：作業環境",text:"静かな環境や集中できる個人スペースがあると作業効率が上がります。"});
   items.push({id:"s9",label:"参考情報",text:"このシートは自己アセスメントツールによる結果をもとに作成しています。医療的な診断ではありませんが、自分の働きやすさを整理したものです。"});
   return items;
 }
@@ -186,7 +206,9 @@ function NavBar({screen,setScreen}){
 export default function App(){
   const [screen,setScreen]=useState("top");
   const [cur,setCur]=useState(0);
-  const [answers,setAnswers]=useState(Array(25).fill(null));
+  const [part,setPart]=useState("A"); // "A" or "B"
+  const [answersA,setAnswersA]=useState(Array(QUESTIONS_A.length).fill(null));
+  const [answersB,setAnswersB]=useState(Array(QUESTIONS_B.length).fill(null));
   const [history,setHistory]=useState([]);
   const [journal,setJournal]=useState([]);
   const [loading,setLoading]=useState(true);
@@ -214,13 +236,17 @@ export default function App(){
 
   const save=(h)=>{setHistory(h);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(h));}catch{}};
   const saveJ=(j)=>{setJournal(j);try{localStorage.setItem(JOURNAL_KEY,JSON.stringify(j));}catch{}};
-  const startQuiz=()=>{setAnswers(Array(25).fill(null));setCur(0);setScreen("quiz");};
+  const startQuiz=()=>{
+    setAnswersA(Array(QUESTIONS_A.length).fill(null));
+    setAnswersB(Array(QUESTIONS_B.length).fill(null));
+    setCur(0);setPart("A");setScreen("quiz");
+  };
 
   const finish=()=>{
-    const sc=calcScores(answers);
-    const next=[...history,{date:new Date().toISOString(),scores:sc}];
+    const sc=calcScores(answersA,answersB);
+    const next=[...history,{date:new Date().toISOString(),scores:sc.a,scoreB:sc.b}];
     save(next);
-    const init={};buildShare(sc).forEach(s=>{init[s.id]=true;});
+    const init={};buildShare(sc.a).forEach(s=>{init[s.id]=true;});
     setShareChecked(init);setShareOpen(false);setScreen("result");
   };
 
@@ -264,40 +290,94 @@ export default function App(){
             <button onClick={()=>setScreen("journal")} style={{marginTop:6,fontSize:12,color:"#378ADD",background:"none",border:"none",cursor:"pointer",padding:0}}>今日の日誌を書く →</button>
           </div>
         )}
-        <button onClick={startQuiz} style={{display:"block",width:"100%",padding:14,background:"#1a1917",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",marginBottom:10}}>アセスメントを受ける（25問・約５分）</button>
+        <button onClick={startQuiz} style={{display:"block",width:"100%",padding:14,background:"#1a1917",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",marginBottom:10}}>アセスメントを受ける（31問・約8分）</button>
         <button onClick={()=>setScreen("journal")} style={{display:"block",width:"100%",padding:12,background:"transparent",border:"0.5px solid #d4d2cb",borderRadius:12,fontSize:13,color:"#4a4845",cursor:"pointer"}}>今日の日誌を書く</button>
       </div>
       <NavBar screen={screen} setScreen={setScreen}/>
     </div>
   );
 
-  // QUIZ
+  // QUIZ — Part B 教示画面
+  if(screen==="quiz" && part==="B_intro"){
+    return(
+      <div style={{padding:"2rem 1.5rem",display:"flex",flexDirection:"column",minHeight:"80vh",justifyContent:"center"}}>
+        <div style={{textAlign:"center",marginBottom:"2rem"}}>
+          <div style={{fontSize:13,fontWeight:700,padding:"4px 14px",borderRadius:20,background:"#FAEEDA",color:"#633806",display:"inline-block",marginBottom:"1.25rem"}}>Part B — 困難・消耗の自覚</div>
+          <div style={{fontSize:20,fontWeight:700,lineHeight:1.4,marginBottom:"1rem"}}>過去1ヶ月を<br/>振り返って答えてください</div>
+          <div style={{fontSize:14,color:"#4a4845",lineHeight:1.8,marginBottom:"1.5rem"}}>ここからの7問は、<br/>この1ヶ月間でどのくらい<br/>あてはまるかを選んでください。</div>
+          <div style={{fontSize:12,color:"#9c9a92",lineHeight:1.7,padding:"1rem",background:"#f3f2ef",borderRadius:10}}>
+            固有の特性によるものか、<br/>一時的な状況によるものかを<br/>区別するための期間設定です。
+          </div>
+        </div>
+        <button onClick={()=>{setCur(0);setPart("B");}} style={{display:"block",width:"100%",padding:14,background:"#1a1917",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer"}}>
+          次へ →
+        </button>
+      </div>
+    );
+  }
+
+  // QUIZ — Part A / Part B 問題画面
   if(screen==="quiz"){
-    const q=QUESTIONS[cur],dom=DOMAINS[q.d];
+    const isB=part==="B";
+    const questions=isB?QUESTIONS_B:QUESTIONS_A;
+    const answers=isB?answersB:answersA;
+    const scale=isB?SCALE_B:SCALE_A;
+    const q=questions[cur];
+    const dom=isB?null:DOMAINS[q.d];
+    const accentColor=isB?"#BA7517":"#7F77DD";
+    const accentBg=isB?"#FAEEDA":"#EEEDFE";
+    const accentText=isB?"#633806":"#3C3489";
+    const totalInPart=questions.length;
+    const globalCur=isB?QUESTIONS_A.length+cur:cur;
+    const totalQ=QUESTIONS_A.length+QUESTIONS_B.length;
+    const isLast=cur===totalInPart-1;
+
+    const handleAnswer=(i)=>{
+      if(isB){const a=[...answersB];a[cur]=i;setAnswersB(a);}
+      else{const a=[...answersA];a[cur]=i;setAnswersA(a);}
+    };
+    const handleNext=()=>{
+      if(answers[cur]==null)return;
+      if(isLast){
+        if(isB){finish();}
+        else{setPart("B_intro");}
+      } else {
+        setCur(c=>c+1);
+      }
+    };
+    const handleBack=()=>{
+      if(cur===0&&isB){setPart("B_intro");}
+      else{setCur(c=>c-1);}
+    };
+
     return(
       <div style={{padding:"1rem 1.5rem 80px"}}>
         <div style={{borderBottom:"0.5px solid #e2e0d8",paddingBottom:".75rem",marginBottom:"1.5rem"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-            <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:12,background:dom.bg,color:dom.text}}>{dom.name}</span>
-            <span style={{fontSize:12,color:"#9c9a92"}}>{cur+1} / {QUESTIONS.length}</span>
+            <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:12,background:accentBg,color:accentText}}>
+              {isB?"Part B — 過去1ヶ月":dom.name}
+            </span>
+            <span style={{fontSize:12,color:"#9c9a92"}}>{globalCur+1} / {totalQ}</span>
           </div>
           <div style={{height:3,background:"#e2e0d8",borderRadius:2,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${((cur+1)/25)*100}%`,background:dom.color,transition:"width .3s"}}/>
+            <div style={{height:"100%",width:`${((globalCur+1)/totalQ)*100}%`,background:accentColor,transition:"width .3s"}}/>
           </div>
         </div>
         <div style={{fontSize:16,lineHeight:1.8,marginBottom:"1.75rem",minHeight:60}}>{q.text}</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:"2rem"}}>
-          {SCALE.map((label,i)=>{
+          {scale.map((label,i)=>{
             const sel=answers[cur]===i;
-            return <button key={i} onClick={()=>{const a=[...answers];a[cur]=i;setAnswers(a);}} style={{padding:"12px 4px",border:sel?`1.5px solid ${dom.color}`:"0.5px solid #d4d2cb",borderRadius:10,background:sel?dom.color:"#fff",cursor:"pointer",textAlign:"center",transition:"all .12s"}}>
+            return <button key={i} onClick={()=>handleAnswer(i)} style={{padding:"12px 4px",border:sel?`1.5px solid ${accentColor}`:"0.5px solid #d4d2cb",borderRadius:10,background:sel?accentColor:"#fff",cursor:"pointer",textAlign:"center",transition:"all .12s"}}>
               <span style={{display:"block",fontSize:18,fontWeight:700,color:sel?"#fff":"#1a1917",marginBottom:4}}>{i+1}</span>
               <span style={{fontSize:11,color:sel?"rgba(255,255,255,.75)":"#73726c"}}>{label}</span>
             </button>;
           })}
         </div>
         <div style={{display:"flex",justifyContent:"space-between"}}>
-          <button onClick={()=>setCur(c=>c-1)} disabled={cur===0} style={{padding:"10px 20px",border:"0.5px solid #d4d2cb",borderRadius:10,background:"#fff",cursor:cur===0?"default":"pointer",fontSize:13,opacity:cur===0?.3:1}}>← 戻る</button>
-          <button onClick={()=>{if(answers[cur]==null)return;cur===24?finish():setCur(c=>c+1);}} disabled={answers[cur]==null} style={{padding:"10px 24px",border:"none",borderRadius:10,background:answers[cur]!=null?"#1a1917":"#d4d2cb",color:"#fff",cursor:answers[cur]!=null?"pointer":"default",fontSize:13,fontWeight:700}}>{cur===24?"結果を見る →":"次へ →"}</button>
+          <button onClick={handleBack} disabled={cur===0&&!isB} style={{padding:"10px 20px",border:"0.5px solid #d4d2cb",borderRadius:10,background:"#fff",cursor:(cur===0&&!isB)?"default":"pointer",fontSize:13,opacity:(cur===0&&!isB)?.3:1}}>← 戻る</button>
+          <button onClick={handleNext} disabled={answers[cur]==null} style={{padding:"10px 24px",border:"none",borderRadius:10,background:answers[cur]!=null?"#1a1917":"#d4d2cb",color:"#fff",cursor:answers[cur]!=null?"pointer":"default",fontSize:13,fontWeight:700}}>
+            {isLast&&isB?"結果を見る →":"次へ →"}
+          </button>
         </div>
       </div>
     );
@@ -305,10 +385,12 @@ export default function App(){
 
   // RESULT
   if(screen==="result"){
-    const sc=history.length>0?history[history.length-1].scores:calcScores(answers);
+    const lastH=history[history.length-1];
+    const scA=lastH?lastH.scores:calcScores(answersA,answersB).a;
+    const scB=lastH?lastH.scoreB:calcScores(answersA,answersB).b;
     const prev=history.length>=2?history[history.length-2].scores:null;
-    const diffs=prev?sc.map((s,i)=>Math.round((s-prev[i])*10)/10):null;
-    const radarData=DOMAINS.map((d,i)=>({subject:d.short,value:sc[i],fullMark:4}));
+    const diffs=prev?scA.map((s,i)=>Math.round((s-prev[i])*10)/10):null;
+    const radarData=DOMAINS.map((d,i)=>({subject:d.short,value:scA[i],fullMark:4}));
     const STRENGTHS=[
       {d:0,min:3.2,name:"自己理解が深い",tip:"自分の特性を言葉にできる力は、職場での配慮依頼に直結します。"},
       {d:1,min:3.2,name:"自己調整力がある",tip:"状況に応じて自分のペースを整える力があります。"},
@@ -321,13 +403,13 @@ export default function App(){
       {d:1,max:2.4,name:"優先順位の整理が難しい",tip:"タスクの見える化や上司への優先順位確認の依頼が有効です。"},
       {d:2,max:2.4,name:"困りごとを抱え込みやすい",tip:"定期的な1on1を会社に依頼するのが効果的です。"},
       {d:2,max:2.8,name:"言い出せない気持ちがある",tip:"職場共有シートを使うと伝えやすくなります。"},
-      {d:3,max:2.4,name:"限界サインを見逃しやすい",tip:"「ちょっと変だな」を感じたら早めに動く癸をつけましょう。"},
+      {d:3,max:2.4,name:"限界サインを見逃しやすい",tip:"「ちょっと変だな」を感じたら早めに動く癖をつけましょう。"},
       {d:3,max:2.8,name:"カモフラージュ疲弊がある",tip:"「普通に見せる」努力が燃え尽きの主因になることがあります。"},
       {d:4,max:2.4,name:"ミスマッチを言語化しにくい",tip:"このアセスメント結果を見せながら相談するのが一つの方法です。"},
     ];
-    const strs=STRENGTHS.filter(s=>sc[s.d]>=s.min);
-    const warns=WARNINGS.filter(w=>sc[w.d]<=w.max);
-    const shareItems=buildShare(sc);
+    const strs=STRENGTHS.filter(s=>scA[s.d]>=s.min);
+    const warns=WARNINGS.filter(w=>scA[w.d]<=w.max);
+    const shareItems=buildShare(scA);
     return(
       <div style={{padding:"1.5rem 1.5rem 0",paddingBottom:"80px"}}>
         <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
@@ -344,20 +426,37 @@ export default function App(){
             </RadarChart>
           </ResponsiveContainer>
         </div>
-        <div style={{display:"grid",gap:8,marginBottom:"1.5rem"}}>
+        <div style={{display:"grid",gap:8,marginBottom:"1rem"}}>
           {DOMAINS.map((d,i)=>(
             <div key={i} style={{display:"grid",gridTemplateColumns:"76px 1fr auto",gap:10,alignItems:"center"}}>
               <span style={{fontSize:12,color:"#4a4845"}}>{d.name}</span>
               <div style={{height:6,background:"#e2e0d8",borderRadius:3,overflow:"hidden"}}>
-                <div style={{height:"100%",width:`${(sc[i]/4)*100}%`,background:d.color,transition:"width .5s"}}/>
+                <div style={{height:"100%",width:`${(scA[i]/4)*100}%`,background:d.color,transition:"width .5s"}}/>
               </div>
               <div style={{display:"flex",alignItems:"center",minWidth:56}}>
-                <span style={{fontSize:13,fontWeight:700,color:d.color}}>{sc[i].toFixed(1)}</span>
+                <span style={{fontSize:13,fontWeight:700,color:d.color}}>{scA[i].toFixed(1)}</span>
                 <Delta v={diffs?diffs[i]:null}/>
               </div>
             </div>
           ))}
         </div>
+        {/* Part B: 消耗度スコア */}
+        {scB>0&&(
+          <div style={{padding:"1rem 1.1rem",borderRadius:12,background:scB>=3?"#FAECE7":scB>=2?"#FAEEDA":"#E1F5EE",border:`0.5px solid ${scB>=3?"#F0997B":scB>=2?"#EF9F27":"#5DCBA6"}`,marginBottom:"1.5rem"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <div style={{fontSize:13,fontWeight:700,color:scB>=3?"#712B13":scB>=2?"#633806":"#085041"}}>
+                過去1ヶ月の消耗度（Part B）
+              </div>
+              <span style={{fontSize:18,fontWeight:700,color:scB>=3?"#D85A30":scB>=2?"#BA7517":"#1D9E75"}}>{scB.toFixed(1)}<span style={{fontSize:11,fontWeight:400,color:"#73726c"}}> / 4.0</span></span>
+            </div>
+            <div style={{height:6,background:"rgba(0,0,0,.08)",borderRadius:3,overflow:"hidden",marginBottom:8}}>
+              <div style={{height:"100%",width:`${(scB/4)*100}%`,background:scB>=3?"#D85A30":scB>=2?"#BA7517":"#1D9E75",transition:"width .5s"}}/>
+            </div>
+            <div style={{fontSize:12,color:scB>=3?"#993C1D":scB>=2?"#854F0B":"#085041",lineHeight:1.6}}>
+              {scB>=3?"今のあなたは消耗が大きい状態です。休養や負荷軽減が必要かもしれません。":scB>=2?"消耗の傾向が見られます。無理をしすぎていないか確認してみてください。":"消耗が少なく、比較的安定した状態です。"}
+            </div>
+          </div>
+        )}
         <div style={{fontSize:11,color:"#9c9a92",letterSpacing:".07em",textTransform:"uppercase",marginBottom:".75rem"}}>強みバッジ</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:"1.5rem"}}>
           {strs.length>0?strs.map((s,i)=>(

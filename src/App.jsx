@@ -1,32 +1,33 @@
-import { useState, useEffect } from "react";
+mport { useState, useEffect } from "react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
-// Part A: 自己調整資源（20項目）— スケール：まったくできない〜よくできる
+// Part A: 自己調整資源（20項目・5領域×4項目）— スケール：まったくできない〜よくできる
 const QUESTIONS_A = [
+  // 自己認識 (d:0) A1〜A4
   { d:0, text:"自分の得意なことと苦手なことを、具体的に説明できる" },
-  { d:0, text:"仕事で疲れてきたとき、身体の変化（頭痛・肩こり・眠気など）として自分でわかることがある" },
-  { d:0, text:"自分が「調子が悪い状態」になっていることを、その場で自覚できる" },
-  { d:0, text:"過去のミスや困りごとから、自分の行動パターンを振り返ることができる" },
-  { d:0, text:"自分の困りごとが「性格」や「努力不足」ではなく、脳の特性からきているかもしれないと考えることができる" },
+  { d:0, text:"仕事で疲れてきたとき、身体の変化として自分でわかることがある" },
+  { d:0, text:"自分が調子が悪い状態になっていることを、その場で自覚できる" },
+  { d:0, text:"自分の困りごとが脳の特性からきているかもしれないと考えることができる" },
+  // 自己調整 (d:1) A5〜A8
   { d:1, text:"複数の仕事がある場合、何から手をつけるか順番を決めることができる" },
   { d:1, text:"集中しにくいと感じたとき、環境を変えるなど自分で対処することができる" },
-  { d:1, text:"締め切りや予定の管理を、自分でできる" },
-  { d:1, text:"電話・入力・声かけなど複数のことが同時に起きても、頭の処理が追いつくことができる" },
-  { d:1, text:"感情が動いたとき（怒り・不安・悲しみなど）、すぐに行動や言葉に出さずに落ち着くことができる" },
+  { d:1, text:"締め切りや予定を、自分なりの方法で管理することができる" },
+  { d:1, text:"急な予定変更があったとき、気持ちを切り替えて対応することができる" },
+  // 支援要請 (d:2) A9〜A12
   { d:2, text:"仕事でわからないことがあったとき、上司や同僚に質問することができる" },
   { d:2, text:"困りごとが大きくなる前に、誰かに相談することができる" },
   { d:2, text:"自分が必要としている配慮や働き方の工夫を、職場の人に伝えることができる" },
-  { d:2, text:"仕事で困っていることがあっても、職場に言い出すことができる" },
   { d:2, text:"仕事上の失敗やミスを、一人で抱え込まずに処理することができる" },
+  // ストレス管理 (d:3) A13〜A16
   { d:3, text:"仕事の疲れが蓄積しているとき、休む・ペースを落とすなどの行動をとることができる" },
-  { d:3, text:"職場で無理に「普通にできている人」のように振る舞わずにいることができる" },
   { d:3, text:"疲れたとき、自分に合った回復方法（睡眠・趣味・一人の時間など）を選ぶことができる" },
-  { d:3, text:"仕事の後、その日の出来事を引きずらずに切り替えることができる" },
-  { d:4, text:"今の職場の環境が、自分に合っているかどうかを判断することができる" },
+  { d:3, text:"回復方法を実際に取り入れる習慣がある" },
+  { d:3, text:"自分が休んだり、ペースを落としたりすることを自分に許せる" },
+  // 環境適合の判断 (d:4) A17〜A20
+  { d:4, text:"今の仕事や職場環境でうまくいかないとき、何が原因かを言葉にできる" },
   { d:4, text:"自分がどんな職場環境だと力を発揮しやすいか、具体的に説明できる" },
   { d:4, text:"仕事のやり方や環境について、改善してほしいことを職場に伝えることができる" },
-  { d:4, text:"今の仕事や職場環境でうまくいかないとき、何が原因かを言葉にできる" },
-  { d:4, text:"転職や配置換えを考えるとき、「自分に何が必要か」をもとに判断することができる" },
+  { d:4, text:"転職や配置換えを考えるとき、自分に何が必要かをもとに判断することができる" },
 ];
 
 // Part B: 困難・消耗の自覚（7項目）— スケール：ほとんどない〜よくある（過去1ヶ月）
@@ -42,7 +43,7 @@ const QUESTIONS_B = [
 
 const SCALE_A = ["まったくできない","あまりできない","だいたいできる","よくできる"];
 const SCALE_B = ["ほとんどない","あまりない","ときどきある","よくある"];
-const TOTAL_Q = QUESTIONS_A.length + QUESTIONS_B.length; // 24+7=31
+const TOTAL_Q = QUESTIONS_A.length + QUESTIONS_B.length; // 20+7=27
 
 const DOMAINS = [
   { id:0, name:"自己認識", short:"自己認識", color:"#7F77DD", bg:"#EEEDFE", text:"#3C3489" },
@@ -290,7 +291,7 @@ export default function App(){
             <button onClick={()=>setScreen("journal")} style={{marginTop:6,fontSize:12,color:"#378ADD",background:"none",border:"none",cursor:"pointer",padding:0}}>今日の日誌を書く →</button>
           </div>
         )}
-        <button onClick={startQuiz} style={{display:"block",width:"100%",padding:14,background:"#1a1917",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",marginBottom:10}}>アセスメントを受ける（31問・約8分）</button>
+        <button onClick={startQuiz} style={{display:"block",width:"100%",padding:14,background:"#1a1917",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",marginBottom:10}}>アセスメントを受ける（27問・約7分）</button>
         <button onClick={()=>setScreen("journal")} style={{display:"block",width:"100%",padding:12,background:"transparent",border:"0.5px solid #d4d2cb",borderRadius:12,fontSize:13,color:"#4a4845",cursor:"pointer"}}>今日の日誌を書く</button>
       </div>
       <NavBar screen={screen} setScreen={setScreen}/>
